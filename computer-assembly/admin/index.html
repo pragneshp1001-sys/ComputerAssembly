@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — ComputerAssembly</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+
+<!-- ═══════════════════════════════ SIDEBAR ═══════════════════════════════ -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <i class="fas fa-microchip"></i>
+    <span>ComputerAssembly</span>
+  </div>
+
+  <nav class="sidebar-nav">
+    <a class="nav-link active" data-page="dashboard"><i class="fas fa-chart-pie"></i><span>Dashboard</span></a>
+    <a class="nav-link"        data-page="products" ><i class="fas fa-boxes"></i><span>Products</span></a>
+    <a class="nav-link"        data-page="orders"   ><i class="fas fa-receipt"></i><span>Orders</span></a>
+    <a class="nav-link"        data-page="users"    ><i class="fas fa-users"></i><span>Users</span></a>
+    <a class="nav-link"        data-page="categories"><i class="fas fa-layer-group"></i><span>Categories</span></a>
+    <a class="nav-link"        data-page="reviews"  ><i class="fas fa-star"></i><span>Reviews</span></a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <a href="../index.html" class="nav-link"><i class="fas fa-store"></i><span>View Store</span></a>
+    <a href="#" id="logoutBtn" class="nav-link logout"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a>
+  </div>
+</aside>
+
+<!-- ══════════════════════════════ MAIN AREA ══════════════════════════════ -->
+<div class="main-wrap">
+
+  <!-- Topbar -->
+  <header class="topbar">
+    <button class="sidebar-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+    <div class="topbar-title" id="topbarTitle">Dashboard</div>
+    <div class="topbar-right">
+      <span class="admin-badge"><i class="fas fa-shield-alt"></i> Admin</span>
+      <span class="admin-name" id="adminName">—</span>
+    </div>
+  </header>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <!-- ─────────────────── DASHBOARD ─────────────────── -->
+  <section class="page active" id="page-dashboard">
+    <div class="stat-grid">
+      <div class="stat-card blue">
+        <div class="stat-icon"><i class="fas fa-receipt"></i></div>
+        <div class="stat-body"><div class="stat-val" id="s-orders">—</div><div class="stat-label">Total Orders</div></div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-icon"><i class="fas fa-rupee-sign"></i></div>
+        <div class="stat-body"><div class="stat-val" id="s-revenue">—</div><div class="stat-label">Total Revenue</div></div>
+      </div>
+      <div class="stat-card purple">
+        <div class="stat-icon"><i class="fas fa-boxes"></i></div>
+        <div class="stat-body"><div class="stat-val" id="s-products">—</div><div class="stat-label">Products</div></div>
+      </div>
+      <div class="stat-card orange">
+        <div class="stat-icon"><i class="fas fa-users"></i></div>
+        <div class="stat-body"><div class="stat-val" id="s-users">—</div><div class="stat-label">Users</div></div>
+      </div>
+    </div>
+
+    <div class="dash-grid">
+      <div class="card">
+        <div class="card-head"><h3>Recent Orders</h3></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Order #</th><th>Customer</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
+            <tbody id="dashOrders"><tr><td colspan="5" class="loading-row">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3>Pending Actions</h3></div>
+        <div id="pendingActions" class="pending-list">Loading…</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────────────── PRODUCTS ─────────────────── -->
+  <section class="page" id="page-products">
+    <div class="page-head">
+      <h2>Products</h2>
+      <button class="btn btn-primary" id="addProductBtn"><i class="fas fa-plus"></i> Add Product</button>
+    </div>
+    <div class="filter-bar">
+      <input type="text"  id="productSearch"   placeholder="Search name or brand…" class="filter-input">
+      <select id="productCatFilter" class="filter-select">
+        <option value="">All Categories</option>
+      </select>
+      <select id="productStockFilter" class="filter-select">
+        <option value="">All Stock</option>
+        <option value="low">Low Stock (≤10)</option>
+        <option value="out">Out of Stock</option>
+      </select>
+    </div>
+    <div class="card table-card">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th><th>Name</th><th>Category</th><th>Brand</th>
+              <th>Price (₹)</th><th>Stock</th><th>Rating</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="productsBody"><tr><td colspan="8" class="loading-row">Loading…</td></tr></tbody>
+        </table>
+      </div>
+      <div class="pagination" id="productsPagination"></div>
+    </div>
+  </section>
+
+  <!-- ─────────────────── ORDERS ─────────────────── -->
+  <section class="page" id="page-orders">
+    <div class="page-head"><h2>Orders</h2></div>
+    <div class="filter-bar">
+      <select id="orderStatusFilter" class="filter-select">
+        <option value="">All Status</option>
+        <option value="pending">Pending</option>
+        <option value="processing">Processing</option>
+        <option value="shipped">Shipped</option>
+        <option value="delivered">Delivered</option>
+        <option value="cancelled">Cancelled</option>
+      </select>
+    </div>
+    <div class="card table-card">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Order #</th><th>Customer</th><th>Amount (₹)</th><th>Payment</th><th>Status</th><th>Date</th><th>Actions</th></tr>
+          </thead>
+          <tbody id="ordersBody"><tr><td colspan="7" class="loading-row">Loading…</td></tr></tbody>
+        </table>
+      </div>
+      <div class="pagination" id="ordersPagination"></div>
+    </div>
+  </section>
+
+  <!-- ─────────────────── USERS ─────────────────── -->
+  <section class="page" id="page-users">
+    <div class="page-head"><h2>Users</h2></div>
+    <div class="filter-bar">
+      <input type="text" id="userSearch" placeholder="Search username or email…" class="filter-input">
+    </div>
+    <div class="card table-card">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>ID</th><th>Username</th><th>Email</th><th>Full Name</th><th>Role</th><th>Orders</th><th>Spent (₹)</th><th>Joined</th></tr>
+          </thead>
+          <tbody id="usersBody"><tr><td colspan="8" class="loading-row">Loading…</td></tr></tbody>
+        </table>
+      </div>
+      <div class="pagination" id="usersPagination"></div>
+    </div>
+  </section>
+
+  <!-- ─────────────────── CATEGORIES ─────────────────── -->
+  <section class="page" id="page-categories">
+    <div class="page-head">
+      <h2>Categories</h2>
+      <button class="btn btn-primary" id="addCategoryBtn"><i class="fas fa-plus"></i> Add Category</button>
+    </div>
+    <div class="card table-card">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>ID</th><th>Name</th><th>Description</th><th>Products</th><th>Created</th><th>Actions</th></tr>
+          </thead>
+          <tbody id="categoriesBody"><tr><td colspan="6" class="loading-row">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────────────── REVIEWS ─────────────────── -->
+  <section class="page" id="page-reviews">
+    <div class="page-head"><h2>Reviews</h2></div>
+    <div class="filter-bar">
+      <select id="reviewRatingFilter" class="filter-select">
+        <option value="">All Ratings</option>
+        <option value="5">★★★★★ 5</option>
+        <option value="4">★★★★☆ 4</option>
+        <option value="3">★★★☆☆ 3</option>
+        <option value="2">★★☆☆☆ 2</option>
+        <option value="1">★☆☆☆☆ 1</option>
+      </select>
+    </div>
+    <div class="card table-card">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Product</th><th>User</th><th>Rating</th><th>Title</th><th>Comment</th><th>Verified</th><th>Date</th><th>Actions</th></tr>
+          </thead>
+          <tbody id="reviewsBody"><tr><td colspan="8" class="loading-row">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+</div><!-- /main-wrap -->
+
+<!-- ════════════════════════════════ MODALS ════════════════════════════════ -->
+
+<!-- Product Modal -->
+<div class="modal-overlay" id="productModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="productModalTitle">Add Product</h3>
+      <button class="modal-close" data-close="productModal">&times;</button>
+    </div>
+    <form id="productForm" class="modal-body" enctype="multipart/form-data">
+      <input type="hidden" id="productId">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Product Name *</label>
+          <input type="text" id="productName" required>
+        </div>
+        <div class="form-group">
+          <label>Brand</label>
+          <input type="text" id="productBrand">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Category *</label>
+          <select id="productCategory" required>
+            <option value="">Select…</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Price (₹) *</label>
+          <input type="number" id="productPrice" step="0.01" min="0" required>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Stock Quantity *</label>
+          <input type="number" id="productStock" min="0" required>
+        </div>
+        <div class="form-group">
+  <label>Product Image</label>
+  <input type="file" id="productImage" accept="image/*">
+
+  <div style="margin-top:10px">
+    <img id="productPreview"
+         src="../images/default.jpg"
+         style="
+           width:100px;
+           height:100px;
+           object-fit:cover;
+           border-radius:8px;
+           border:1px solid #ddd;
+         ">
+  </div>
+</div>
+      </div>
+      <div class="form-group full">
+        <label>Description</label>
+        <textarea id="productDescription" rows="3"></textarea>
+      </div>
+      <div class="modal-foot">
+        <button type="button" class="btn btn-ghost" data-close="productModal">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="productSubmitBtn">Save Product</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Category Modal -->
+<div class="modal-overlay" id="categoryModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="categoryModalTitle">Add Category</h3>
+      <button class="modal-close" data-close="categoryModal">&times;</button>
+    </div>
+    <form id="categoryForm" class="modal-body">
+      <input type="hidden" id="categoryId">
+      <div class="form-group full">
+        <label>Category Name *</label>
+        <input type="text" id="categoryName" required>
+      </div>
+      <div class="form-group full">
+        <label>Description</label>
+        <textarea id="categoryDescription" rows="3"></textarea>
+      </div>
+      <div class="modal-foot">
+        <button type="button" class="btn btn-ghost" data-close="categoryModal">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save Category</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Order Detail Modal -->
+<div class="modal-overlay" id="orderModal">
+  <div class="modal modal-lg">
+    <div class="modal-head">
+      <h3 id="orderModalTitle">Order Details</h3>
+      <button class="modal-close" data-close="orderModal">&times;</button>
+    </div>
+    <div class="modal-body" id="orderModalBody">Loading…</div>
+    <div class="modal-foot">
+      <label class="inline-label">Update Status:</label>
+      <select id="orderStatusUpdate" class="filter-select" style="width:180px">
+        <option value="pending">Pending</option>
+        <option value="processing">Processing</option>
+        <option value="shipped">Shipped</option>
+        <option value="delivered">Delivered</option>
+        <option value="cancelled">Cancelled</option>
+      </select>
+      <button class="btn btn-primary" id="updateStatusBtn">Update</button>
+      <button class="btn btn-ghost" data-close="orderModal">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Delete Modal -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal modal-sm">
+    <div class="modal-head">
+      <h3>Confirm Delete</h3>
+      <button class="modal-close" data-close="confirmModal">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p id="confirmMsg">Are you sure you want to delete this item? This cannot be undone.</p>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" data-close="confirmModal">Cancel</button>
+      <button class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/admin.js"></script>
+</body>
+</html>

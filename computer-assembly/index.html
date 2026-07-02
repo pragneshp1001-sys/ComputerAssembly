@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ComputerAssembly — Build Your PC</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --cyan: #00f5ff;
+            --orange: #ff6b2b;
+            --dark: #080c14;
+            --dark2: #0d1424;
+            --dark3: #111827;
+            --card-bg: rgba(255,255,255,0.04);
+            --border: rgba(0,245,255,0.15);
+            --text-muted: #8899aa;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: var(--dark);
+            color: #e2e8f0;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 400;
+            overflow-x: hidden;
+        }
+
+        /* ─── GRID OVERLAY ──────────────────────────── */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(0,245,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,245,255,0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ─── NAVBAR ────────────────────────────────── */
+        .navbar {
+            background: rgba(8,12,20,0.85) !important;
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 0;
+            z-index: 100;
+        }
+
+        .navbar-brand {
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--cyan) !important;
+            letter-spacing: 0.05em;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .navbar-brand i {
+            color: var(--orange);
+        }
+
+        .nav-link {
+            color: #aab8cc !important;
+            font-weight: 500;
+            letter-spacing: 0.03em;
+            transition: color 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .nav-link:hover { color: var(--cyan) !important; }
+
+        .btn-nav-login {
+            background: transparent;
+            border: 1px solid var(--cyan);
+            color: var(--cyan) !important;
+            padding: 0.35rem 1.1rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            transition: all 0.25s;
+        }
+
+        .btn-nav-login:hover {
+            background: var(--cyan);
+            color: var(--dark) !important;
+        }
+
+        /* ─── HERO ──────────────────────────────────── */
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+            background: radial-gradient(ellipse 80% 70% at 60% 50%, rgba(0,245,255,0.06) 0%, transparent 70%),
+                        radial-gradient(ellipse 50% 50% at 20% 80%, rgba(255,107,43,0.07) 0%, transparent 60%),
+                        var(--dark);
+        }
+
+        /* animated rings behind the icon */
+        .hero-visual {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 400px;
+        }
+
+        .ring {
+            position: absolute;
+            border-radius: 50%;
+            border: 1px solid;
+            animation: pulse-ring 3s ease-in-out infinite;
+        }
+
+        .ring-1 { width: 220px; height: 220px; border-color: rgba(0,245,255,0.25); animation-delay: 0s; }
+        .ring-2 { width: 320px; height: 320px; border-color: rgba(0,245,255,0.12); animation-delay: 0.6s; }
+        .ring-3 { width: 420px; height: 420px; border-color: rgba(0,245,255,0.07); animation-delay: 1.2s; }
+
+        @keyframes pulse-ring {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.6; }
+        }
+
+        .hero-icon {
+            font-size: 100px;
+            color: var(--cyan);
+            text-shadow: 0 0 60px rgba(0,245,255,0.5), 0 0 120px rgba(0,245,255,0.2);
+            animation: float 4s ease-in-out infinite;
+            position: relative;
+            z-index: 2;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-14px); }
+        }
+
+        .hero-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255,107,43,0.12);
+            border: 1px solid rgba(255,107,43,0.35);
+            color: var(--orange);
+            padding: 0.3rem 0.9rem;
+            border-radius: 50px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero h1 {
+            font-family: 'Orbitron', monospace;
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 900;
+            line-height: 1.1;
+            letter-spacing: -0.01em;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero h1 .accent { color: var(--cyan); }
+
+        .hero p.lead {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            font-weight: 300;
+            line-height: 1.7;
+            margin-bottom: 2.5rem;
+            max-width: 480px;
+        }
+
+        .btn-primary-custom {
+            background: var(--cyan);
+            color: var(--dark);
+            border: none;
+            padding: 0.85rem 2rem;
+            font-weight: 700;
+            font-size: 0.9rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            border-radius: 4px;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.25s;
+            box-shadow: 0 0 30px rgba(0,245,255,0.25);
+        }
+
+        .btn-primary-custom:hover {
+            background: #fff;
+            color: var(--dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 40px rgba(0,245,255,0.35);
+        }
+
+        .btn-ghost-custom {
+            background: transparent;
+            color: #aab8cc;
+            border: 1px solid rgba(255,255,255,0.15);
+            padding: 0.85rem 2rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            border-radius: 4px;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.25s;
+        }
+
+        .btn-ghost-custom:hover {
+            border-color: var(--cyan);
+            color: var(--cyan);
+        }
+
+        /* stats strip */
+        .stats-strip {
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            background: rgba(255,255,255,0.02);
+            padding: 1.5rem 0;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 0.5rem 1rem;
+        }
+
+        .stat-number {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--cyan);
+            display: block;
+            line-height: 1;
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.78rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-top: 0.35rem;
+            display: block;
+        }
+
+        /* ─── FEATURES ──────────────────────────────── */
+        .section-label {
+            display: inline-block;
+            color: var(--orange);
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            margin-bottom: 0.75rem;
+        }
+
+        .section-title {
+            font-family: 'Orbitron', monospace;
+            font-size: clamp(1.5rem, 3vw, 2.2rem);
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 0.75rem;
+        }
+
+        .section-sub {
+            color: var(--text-muted);
+            font-weight: 300;
+            max-width: 480px;
+            margin: 0 auto 3rem;
+            line-height: 1.7;
+        }
+
+        section.features { padding: 6rem 0; position: relative; z-index: 1; }
+
+        .feature-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2.5rem 2rem;
+            height: 100%;
+            transition: all 0.35s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+            opacity: 0;
+            transition: opacity 0.35s;
+        }
+
+        .feature-card:hover {
+            border-color: rgba(0,245,255,0.35);
+            transform: translateY(-6px);
+            background: rgba(0,245,255,0.04);
+        }
+
+        .feature-card:hover::before { opacity: 1; }
+
+        .feature-icon {
+            width: 56px; height: 56px;
+            background: rgba(0,245,255,0.1);
+            border: 1px solid rgba(0,245,255,0.25);
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.3rem;
+            color: var(--cyan);
+            margin-bottom: 1.5rem;
+            transition: all 0.35s;
+        }
+
+        .feature-card:hover .feature-icon {
+            background: rgba(0,245,255,0.2);
+            box-shadow: 0 0 20px rgba(0,245,255,0.2);
+        }
+
+        .feature-card h4 {
+            font-family: 'Orbitron', monospace;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 0.75rem;
+            letter-spacing: 0.03em;
+        }
+
+        .feature-card p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.7;
+            margin: 0;
+        }
+
+        /* ─── CATEGORIES ────────────────────────────── */
+        section.categories { padding: 6rem 0; background: var(--dark2); position: relative; z-index: 1; }
+
+        .cat-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 12px;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cat-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 50% 100%, rgba(255,107,43,0.12) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.35s;
+        }
+
+        .cat-card:hover { border-color: rgba(255,107,43,0.4); transform: translateY(-4px); }
+        .cat-card:hover::after { opacity: 1; }
+
+        .cat-icon {
+            width: 64px; height: 64px;
+            border-radius: 50%;
+            background: rgba(255,107,43,0.1);
+            border: 1px solid rgba(255,107,43,0.25);
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 1.25rem;
+            font-size: 1.4rem;
+            color: var(--orange);
+            transition: all 0.3s;
+        }
+
+        .cat-card:hover .cat-icon {
+            background: rgba(238, 10, 10, 0.2);
+            box-shadow: 0 0 25px rgba(255,107,43,0.25);
+        }
+
+        .cat-card h5 {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #fff;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.4rem;
+        }
+
+        .cat-card p {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            margin: 0;
+        }
+
+        /* ─── CTA ───────────────────────────────────── */
+        section.cta {
+            padding: 7rem 0;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        section.cta::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse 80% 100% at 50% 0%, rgba(0,245,255,0.08) 0%, transparent 70%);
+        }
+
+        .cta-box {
+            border: 1px solid var(--border);
+            background: rgba(0,245,255,0.03);
+            border-radius: 20px;
+            padding: 5rem 3rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-box::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 50%; transform: translateX(-50%);
+            width: 60%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+        }
+
+        .cta-box h2 {
+            font-family: 'Orbitron', monospace;
+            font-size: clamp(1.5rem, 4vw, 2.8rem);
+            font-weight: 900;
+            color: #fff;
+            margin-bottom: 1rem;
+        }
+
+        .cta-box p {
+            color: var(--text-muted);
+            font-size: 1rem;
+            max-width: 440px;
+            margin: 0 auto 2.5rem;
+            line-height: 1.7;
+        }
+
+        /* ─── FOOTER ────────────────────────────────── */
+        footer {
+            background: rgba(8,12,20,0.95);
+            border-top: 1px solid var(--border);
+            padding: 4rem 0 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        footer .brand {
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--cyan);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        footer .brand i { color: var(--orange); }
+
+        footer p, footer li { color: var(--text-muted); font-size: 0.88rem; line-height: 1.8; }
+
+        footer h6 {
+            color: #fff;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            font-size: 0.78rem;
+            margin-bottom: 1.2rem;
+        }
+
+        footer a {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        footer a:hover { color: var(--cyan); }
+
+        .footer-divider {
+            border-color: var(--border);
+            margin: 2rem 0 1.5rem;
+        }
+
+        .footer-copy {
+            color: #445566;
+            font-size: 0.8rem;
+            text-align: center;
+        }
+
+        /* ─── SCROLLBAR ─────────────────────────────── */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--dark); }
+        ::-webkit-scrollbar-thumb { background: rgba(0,245,255,0.3); border-radius: 3px; }
+
+        /* ─── ANIMATIONS ────────────────────────────── */
+        .fade-up {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.7s ease, transform 0.7s ease;
+        }
+        .fade-up.visible { opacity: 1; transform: translateY(0); }
+
+        .delay-1 { transition-delay: 0.1s; }
+        .delay-2 { transition-delay: 0.2s; }
+        .delay-3 { transition-delay: 0.3s; }
+        .delay-4 { transition-delay: 0.4s; }
+        .delay-5 { transition-delay: 0.5s; }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="fas fa-microchip"></i> ComputerAssembly
+            </a>
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                    style="color:var(--cyan)">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center gap-1">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="shop.html">Shop</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#about">About</a></li>
+                    <li class="nav-item" id="nav-auth">
+                        <a class="nav-link btn-nav-login ms-2" href="login.html">Login</a>
+                    </li>
+                    <li class="nav-item" id="nav-user" style="display:none;">
+                        <div class="dropdown ms-2">
+                            <button class="btn btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-user"></i> <span id="username-display">User</span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-dark">
+                                <li><a class="dropdown-item" href="cart.html"><i class="fas fa-shopping-cart me-2"></i>Cart</a></li>
+                                <li><a class="dropdown-item" href="orders.html"><i class="fas fa-box me-2"></i>My Orders</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="#" onclick="logout()"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container" style="position:relative;z-index:2;">
+            <div class="row align-items-center g-5">
+                <div class="col-lg-6">
+                    <div class="hero-eyebrow">
+                        <i class="fas fa-bolt"></i> Next-Gen PC Components
+                    </div>
+                    <h1>Build Your <span class="accent">Perfect</span><br>Machine</h1>
+                    <p class="lead">Choose from premium components, hand-picked from leading brands. Whether you're building a workstation or gaming beast — we've got every part.</p>
+                    <div class="d-flex gap-3 flex-wrap">
+                        <a href="shop.html" class="btn-primary-custom">
+                            <i class="fas fa-store me-2"></i>Shop Now
+                        </a>
+                        <a href="#about" class="btn-ghost-custom">
+                            Learn More <i class="fas fa-arrow-down ms-2"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="hero-visual">
+                        <div class="ring ring-1"></div>
+                        <div class="ring ring-2"></div>
+                        <div class="ring ring-3"></div>
+                        <i class="fas fa-desktop hero-icon"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Strip -->
+    <div class="stats-strip" style="position:relative;z-index:1;">
+        <div class="container">
+            <div class="row justify-content-center g-0">
+                <div class="col-6 col-md-3 stat-item">
+                    <span class="stat-number">100+</span>
+                    <span class="stat-label">Components</span>
+                </div>
+                <div class="col-6 col-md-3 stat-item">
+                    <span class="stat-number">100+</span>
+                    <span class="stat-label">Builds Completed</span>
+                </div>
+                <div class="col-6 col-md-3 stat-item">
+                    <span class="stat-number">24/7</span>
+                    <span class="stat-label">Expert Support</span>
+                </div>
+                <div class="col-6 col-md-3 stat-item">
+                    <span class="stat-number">4.9★</span>
+                    <span class="stat-label">Customer Rating</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <section class="features" id="about">
+        <div class="container">
+            <div class="text-center mb-2 fade-up">
+                <span class="section-label">Why Us</span>
+            </div>
+            <div class="text-center fade-up delay-1">
+                <h2 class="section-title">Why Choose ComputerAssembly?</h2>
+            </div>
+            <p class="section-sub text-center fade-up delay-2">We combine premium hardware selection with expert support to make every build a success.</p>
+
+            <div class="row g-4">
+                <div class="col-md-4 fade-up delay-2">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h4>Quality Components</h4>
+                        <p>Every part is sourced from certified distributors and comes with full manufacturer warranty coverage.</p>
+                    </div>
+                </div>
+                <div class="col-md-4 fade-up delay-3">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-rocket"></i>
+                        </div>
+                        <h4>Express Shipping</h4>
+                        <p>Same-day dispatch for in-stock items. Real-time tracking so your build never waits longer than it has to.</p>
+                    </div>
+                </div>
+                <div class="col-md-4 fade-up delay-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-headset"></i>
+                        </div>
+                        <h4>Expert Support</h4>
+                        <p>Dedicated tech advisors available round the clock — from parts selection to final assembly troubleshooting.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Categories Preview -->
+    <section class="categories">
+        <div class="container">
+            <div class="text-center mb-2 fade-up">
+                <span class="section-label">Catalog</span>
+            </div>
+            <div class="text-center fade-up delay-1">
+                <h2 class="section-title">Browse by Category</h2>
+            </div>
+            <p class="section-sub text-center fade-up delay-2">Every component you need, all in one place.</p>
+
+            <div class="row g-3" id="categories-preview">
+                <div class="col-6 col-md-4 col-lg-2 fade-up delay-1">
+                    <div class="cat-card">
+                        <div class="cat-icon"><i class="fas fa-microchip"></i></div>
+                        <h5>CPUs</h5>
+                        <p>Processors</p>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4 col-lg-2 fade-up delay-2">
+                    <div class="cat-card">
+                        <div class="cat-icon"><i class="fas fa-server"></i></div>
+                        <h5>GPUs</h5>
+                        <p>Graphics Cards</p>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4 col-lg-2 fade-up delay-3">
+                    <div class="cat-card">
+                        <div class="cat-icon"><i class="fas fa-memory"></i></div>
+                        <h5>RAM</h5>
+                        <p>Memory Modules</p>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4 col-lg-2 fade-up delay-4">
+                    <div class="cat-card">
+                        <div class="cat-icon"><i class="fas fa-hdd"></i></div>
+                        <h5>Storage</h5>
+                        <p>SSDs & HDDs</p>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4 col-lg-2 fade-up delay-5">
+                    <div class="cat-card">
+                        <div class="cat-icon"><i class="fas fa-plug"></i></div>
+                        <h5>PSUs</h5>
+                        <p>Power Supplies</p>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4 col-lg-2 fade-up delay-5">
+                    <div class="cat-card">
+                        <div class="cat-icon"><i class="fas fa-fan"></i></div>
+                        <h5>Cooling</h5>
+                        <p>Fans & AIO</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta">
+        <div class="container" style="position:relative;z-index:2;">
+            <div class="cta-box fade-up">
+                <div class="section-label mb-3">Get Started</div>
+                <h2>Ready to Build?</h2>
+                <p>Explore our full range of components and start assembling your dream machine today.</p>
+                <a href="shop.html" class="btn-primary-custom">
+                    <i class="fas fa-arrow-right me-2"></i>Go to Shop
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="brand"><i class="fas fa-microchip"></i> ComputerAssembly</div>
+                    <p>Your trusted partner for premium PC components and expert assembly guidance.</p>
+                </div>
+                <div class="col-md-4">
+                    <h6>Quick Links</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="shop.html">→ Shop</a></li>
+                        <li><a href="#">→ About Us</a></li>
+                        <li><a href="#">→ Contact</a></li>
+                        <li><a href="#">→ Build Guide</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h6>Contact</h6>
+                    <p>
+                        <i class="fas fa-envelope me-2" style="color:var(--cyan)"></i>support@computerassembly.com<br>
+                        <i class="fas fa-phone me-2" style="color:var(--cyan)"></i>+91-9876543210
+                    </p>
+                    <div class="d-flex gap-3 mt-2">
+                        <a href="#" style="color:var(--text-muted);font-size:1.1rem;"><i class="fab fa-twitter"></i></a>
+                        <a href="#" style="color:var(--text-muted);font-size:1.1rem;"><i class="fab fa-discord"></i></a>
+                        <a href="#" style="color:var(--text-muted);font-size:1.1rem;"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr class="footer-divider">
+            <p class="footer-copy">&copy; 2026 ComputerAssembly. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        // Intersection Observer for scroll animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(e => {
+                if (e.isIntersecting) e.target.classList.add('visible');
+            });
+        }, { threshold: 0.12 });
+
+        document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+    </script>
+</body>
+</html>

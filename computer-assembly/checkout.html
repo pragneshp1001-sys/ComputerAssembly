@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - ComputerAssembly</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        .payment-card {
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .payment-card:hover {
+            border-color: #0d6efd;
+        }
+
+        .payment-card.active {
+            border-color: #0d6efd;
+            background: #eef5ff;
+        }
+
+        #payment-details {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-microchip"></i>
+                ComputerAssembly
+            </a>
+        </div>
+    </nav>
+
+    <div class="container py-5">
+
+        <div class="row">
+
+            <!-- Address Form -->
+            <div class="col-md-8">
+
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-map-marker-alt"></i>
+                            Shipping Details
+                        </h5>
+                    </div>
+
+                    <div class="card-body">
+
+                        <form id="checkoutForm">
+
+                            <div class="row">
+
+                                <div class="col-md-6 mb-3">
+                                    <label>Full Name</label>
+                                    <input type="text" class="form-control" required>
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <label>Phone</label>
+                                    <input type="text" class="form-control" required>
+                                </div>
+
+                            </div>
+
+                            <div class="mb-3">
+                                <label>Address</label>
+                                <textarea class="form-control" rows="3" required></textarea>
+                            </div>
+
+                            <div class="row">
+
+                                <div class="col-md-6 mb-3">
+                                    <label>City</label>
+                                    <input type="text" class="form-control" required>
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <label>Pincode</label>
+                                    <input type="text" class="form-control" required>
+                                </div>
+
+                            </div>
+
+                            <hr>
+
+                            <h5 class="mb-3">
+                                <i class="fas fa-credit-card"></i>
+                                Payment Method
+                            </h5>
+
+                            <!-- COD -->
+                            <div class="payment-card" onclick="selectPayment('cod',this)">
+                                <input type="radio" name="payment" value="Cash on Delivery">
+                                <i class="fas fa-money-bill-wave text-success"></i>
+                                Cash on Delivery
+                            </div>
+
+                            <!-- UPI -->
+                            <div class="payment-card" onclick="selectPayment('upi',this)">
+                                <input type="radio" name="payment" value="UPI">
+                                <i class="fas fa-mobile-alt text-primary"></i>
+                                UPI Payment
+                            </div>
+
+                            <!-- Card -->
+                            <div class="payment-card" onclick="selectPayment('card',this)">
+                                <input type="radio" name="payment" value="Card">
+                                <i class="fas fa-credit-card text-danger"></i>
+                                Credit / Debit Card
+                            </div>
+
+                            <!-- Net Banking -->
+                            <div class="payment-card" onclick="selectPayment('bank',this)">
+                                <input type="radio" name="payment" value="Bank">
+                                <i class="fas fa-university text-warning"></i>
+                                Net Banking
+                            </div>
+
+
+                            <div id="payment-details">
+
+                                <div id="upiBox" class="d-none mt-3">
+                                    <label>UPI ID</label>
+                                    <input type="text" class="form-control" placeholder="example@upi">
+                                </div>
+
+                                <div id="cardBox" class="d-none mt-3">
+
+                                    <input class="form-control mb-2" placeholder="Card Number">
+
+                                    <div class="row">
+                                        <div class="col">
+                                            <input class="form-control" placeholder="MM/YY">
+                                        </div>
+
+                                        <div class="col">
+                                            <input class="form-control" placeholder="CVV">
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <div id="bankBox" class="d-none mt-3">
+
+                                    <select class="form-select">
+                                        <option>Select Bank</option>
+                                        <option>State Bank of India</option>
+                                        <option>HDFC Bank</option>
+                                        <option>ICICI Bank</option>
+                                        <option>Axis Bank</option>
+                                        <option>Kotak Bank</option>
+                                    </select>
+
+                                </div>
+
+                            </div>
+
+                            <button class="btn btn-success w-100 mt-4">
+                                <i class="fas fa-check"></i>
+                                Place Order
+                            </button>
+
+                        </form>
+
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Order Summary -->
+            <div class="col-md-4">
+
+                <div class="card shadow">
+
+                    <div class="card-header bg-success text-white">
+                        <h5>Order Summary</h5>
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="d-flex justify-content-between">
+                            <span>Subtotal</span>
+                            <span>₹45000</span>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <span>Shipping</span>
+                            <span>₹100</span>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <span>Tax</span>
+                            <span>₹500</span>
+                        </div>
+
+                        <hr>
+
+                        <div class="d-flex justify-content-between">
+                            <h5>Total</h5>
+                            <h5 class="text-primary">₹45600</h5>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+
+        function selectPayment(type, el) {
+
+            document.querySelectorAll(".payment-card")
+                .forEach(card => card.classList.remove("active"));
+
+            el.classList.add("active");
+
+            el.querySelector("input").checked = true;
+
+            document.getElementById("payment-details")
+                .style.display = "block";
+
+            document.getElementById("upiBox")
+                .classList.add("d-none");
+
+            document.getElementById("cardBox")
+                .classList.add("d-none");
+
+            document.getElementById("bankBox")
+                .classList.add("d-none");
+
+            if (type === "upi") {
+                document.getElementById("upiBox")
+                    .classList.remove("d-none");
+            }
+
+            if (type === "card") {
+                document.getElementById("cardBox")
+                    .classList.remove("d-none");
+            }
+
+            if (type === "bank") {
+                document.getElementById("bankBox")
+                    .classList.remove("d-none");
+            }
+
+        }
+
+        document.getElementById("checkoutForm")
+            .addEventListener("submit", function (e) {
+
+                e.preventDefault();
+
+                alert("🎉 Order placed successfully!");
+
+                localStorage.removeItem("cart");
+
+                window.location = "index.html";
+
+            });
+
+    </script>
+
+</body>
+
+</html>
