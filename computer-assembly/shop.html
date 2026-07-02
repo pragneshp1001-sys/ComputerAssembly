@@ -124,6 +124,36 @@
                     </div>
                 </div>
 
+                <!-- Product Card Template (shop.js can use this) -->
+                <template id="product-card-template">
+                    <div class="col-sm-6 col-md-4">
+                        <div class="card h-100 product-card" data-product-id="">
+                            <img src="" class="card-img-top product-image" alt="Product">
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title product-name"></h5>
+                                <p class="card-text product-brand text-primary"></p>
+                                <div class="mb-2">
+                                    <h6 class="text-success product-price mb-0"></h6>
+                                    <small class="text-muted">Stock: <span class="product-stock">0</span></small>
+                                </div>
+
+                                <!-- Review snippet -->
+                                <div class="mt-auto">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <div>
+                                            <span class="text-warning product-rating-stars"></span>
+                                            <small class="text-muted">(<span class="product-reviews-count">0</span>)</small>
+                                        </div>
+                                        <div>
+                                            <button class="btn btn-outline-primary btn-sm product-view-btn">View</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+
                 <!-- Products Grid -->
                 <div id="products-grid" class="row g-4">
                     <!-- Products will be loaded here -->
@@ -172,6 +202,36 @@
                             </button>
                         </div>
                     </div>
+
+                    <!-- Reviews Section -->
+                    <hr>
+                    <div id="modal-reviews-section">
+                        <h5>Customer Reviews</h5>
+                        <div id="modal-reviews-list" class="mb-3 text-muted">No reviews yet.</div>
+
+                        <!-- Review form (shown only when logged in) -->
+                        <div id="modal-add-review" style="display:none;">
+                            <h6>Write a review</h6>
+                            <div class="mb-2">
+                                <label class="form-label">Rating</label>
+                                <select id="modal-review-rating" class="form-select form-select-sm">
+                                    <option value="5">5 - Excellent</option>
+                                    <option value="4">4 - Very good</option>
+                                    <option value="3">3 - Good</option>
+                                    <option value="2">2 - Fair</option>
+                                    <option value="1">1 - Poor</option>
+                                </select>
+                            </div>
+                            <div class="mb-2">
+                                <textarea id="modal-review-text" class="form-control" rows="3" placeholder="Share your experience..."></textarea>
+                            </div>
+                            <button class="btn btn-primary" id="modal-submit-review">Submit Review</button>
+                        </div>
+
+                        <div id="modal-login-to-review" class="text-muted">
+                            <small>Log in to write a review.</small>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -207,5 +267,134 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/main.js"></script>
     <script src="js/shop.js"></script>
+
+    <script>
+    // Simple client-side reviews storage and rendering.
+    // Reviews are stored in localStorage under key `reviews_<productId>` as an array of {user, rating, text, date}
+
+    function _loadReviews(productId){
+        try{
+            return JSON.parse(localStorage.getItem('reviews_' + productId) || '[]');
+        }catch(e){
+            return [];
+        }
+    }
+
+    function _saveReviews(productId, reviews){
+        localStorage.setItem('reviews_' + productId, JSON.stringify(reviews));
+    }
+
+    function renderStars(rating){
+        rating = Number(rating) || 0;
+        let out = '';
+        for(let i=1;i<=5;i++){
+            out += i <= rating ? '<i class="fas fa-star"></i>' : '<i class="far fa-star"></i>';
+        }
+        return out;
+    }
+
+    function showModalReviews(productId){
+        const listEl = document.getElementById('modal-reviews-list');
+        const reviews = _loadReviews(productId);
+        if(reviews.length === 0){
+            listEl.innerHTML = '<div class="text-muted">No reviews yet. Be the first to review this product.</div>';
+        } else {
+            listEl.innerHTML = reviews.map(r => `\n                <div class="mb-3">\n                    <div class="d-flex justify-content-between align-items-center">\n                        <div class="text-warning">${renderStars(r.rating)}</div>\n                        <small class="text-muted">${new Date(r.date).toLocaleDateString()} by ${r.user || 'Anonymous'}</small>\n                    </div>\n                    <div class="mt-2">${(r.text && r.text.length>0)? r.text : ''}</div>\n                </div>\n            `).join('');
+        }
+
+        // Update summary counts in modal
+        const ratingEl = document.getElementById('modal-rating');
+        const reviewsCountEl = document.getElementById('modal-reviews');
+        const avg = reviews.length ? (reviews.reduce((s,r)=>s+Number(r.rating),0)/reviews.length).toFixed(1) : 0;
+        ratingEl.textContent = avg;
+        reviewsCountEl.textContent = reviews.length;
+
+        // Show/hide review form based on login
+        const user = localStorage.getItem('user');
+        if(user){
+            document.getElementById('modal-add-review').style.display = '';
+            document.getElementById('modal-login-to-review').style.display = 'none';
+        } else {
+            document.getElementById('modal-add-review').style.display = 'none';
+            document.getElementById('modal-login-to-review').style.display = '';
+        }
+    }
+
+    // Hook when the product modal is shown. shop.js should set productModal.dataset.productId before showing.
+    const productModalEl = document.getElementById('productModal');
+    productModalEl.addEventListener('show.bs.modal', function (event) {
+        const productId = this.dataset.productId;
+        if(productId){
+            showModalReviews(productId);
+        }
+    });
+
+    // Delegate clicks from product cards to open modal
+    document.addEventListener('click', function(e){
+        const btn = e.target.closest('.product-view-btn');
+        if(!btn) return;
+        const card = btn.closest('.product-card');
+        if(!card) return;
+        // Extract product data from data attributes or let shop.js attach dataset to card
+        const pid = card.dataset.productId || card.getAttribute('data-product-id') || '';
+        const product = {
+            id: pid,
+            name: card.querySelector('.product-name')?.textContent || '',
+            image: card.querySelector('.product-image')?.src || '',
+            category: card.querySelector('.product-brand')?.textContent || '',
+            brand: card.querySelector('.product-brand')?.textContent || '',
+            price: card.querySelector('.product-price')?.textContent?.replace('$','') || '',
+            stock: card.querySelector('.product-stock')?.textContent || '0',
+            description: card.querySelector('.product-name')?.textContent || ''
+        };
+        openProductModalWithData(product);
+    });
+
+    // Submit review handler
+    document.getElementById('modal-submit-review').addEventListener('click', function(){
+        const productId = productModalEl.dataset.productId;
+        if(!productId) return alert('Product not set.');
+        const rating = document.getElementById('modal-review-rating').value;
+        const text = document.getElementById('modal-review-text').value.trim();
+        const userObj = JSON.parse(localStorage.getItem('user') || 'null');
+        const review = { user: userObj ? (userObj.username||userObj.name||'User') : 'Anonymous', rating: Number(rating), text: text, date: new Date().toISOString() };
+        const reviews = _loadReviews(productId);
+        reviews.unshift(review);
+        _saveReviews(productId, reviews);
+        document.getElementById('modal-review-text').value = '';
+        document.getElementById('modal-review-rating').value = '5';
+        showModalReviews(productId);
+        // Update product card snippet counts if present
+        const cards = document.querySelectorAll('.product-card');
+        cards.forEach(card => {
+            if(card.dataset && (card.dataset.productId == productId || card.getAttribute('data-product-id') == productId)){
+                const cntEl = card.querySelector('.product-reviews-count');
+                const starEl = card.querySelector('.product-rating-stars');
+                if(cntEl) cntEl.textContent = reviews.length;
+                if(starEl) starEl.innerHTML = renderStars(Math.round(reviews.reduce((s,r)=>s+Number(r.rating),0)/reviews.length));
+            }
+        });
+    });
+
+    // Utility: allow shop.js to call when opening modal with a product object
+    function openProductModalWithData(product){
+        // product should have id, title, image, category, brand, price, stock, description
+        const modal = document.getElementById('productModal');
+        modal.dataset.productId = product.id || product.sku || product.slug || '';
+        document.getElementById('modal-title').textContent = product.name || product.title || '';
+        document.getElementById('modal-image').src = product.image || '';
+        document.getElementById('modal-category').textContent = product.category || '';
+        document.getElementById('modal-brand').textContent = product.brand || '';
+        document.getElementById('modal-price').textContent = product.price ? (product.price.toString().startsWith('$') ? product.price : '$' + Number(product.price).toFixed(2)) : '';
+        document.getElementById('modal-stock').textContent = product.stock != null ? product.stock : "0";
+        document.getElementById('modal-description').textContent = product.description || '';
+        // show reviews
+        showModalReviews(modal.dataset.productId);
+        // show modal via bootstrap
+        const bsModal = new bootstrap.Modal(modal);
+        bsModal.show();
+    }
+
+    </script>
 </body>
 </html>
