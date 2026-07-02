@@ -338,15 +338,19 @@ $('productForm').addEventListener('submit', async e => {
         ? 'update_product'
         : 'create_product';
 
-        const response=await fetch(
-            `../api/admin.php?action=${action}`,
-            {
-                method:'POST',
-                body:formData
-            }
-        );
+        // Use the public products.php endpoint for creating products (works with multipart/form-data)
+        // and admin.php for updates. Also log server response to help debug failures.
+        const url = action === 'create_product'
+          ? '../api/products.php'
+          : `../api/admin.php?action=update_product`;
+
+        const response=await fetch(url, {
+            method:'POST',
+            body:formData
+        });
 
         const data=await response.json();
+        console.log('Save product response:', data);
 
         if(data.success){
 
@@ -362,7 +366,7 @@ $('productForm').addEventListener('submit', async e => {
 
         }else{
 
-            toast(data.message,'error');
+            toast(data.message || 'Save failed','error');
 
         }
 
