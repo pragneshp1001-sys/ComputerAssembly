@@ -238,10 +238,18 @@ if(isset($_FILES['image']) && $_FILES['image']['error']==0){
 
     $image=time().'_'.basename($_FILES['image']['name']);
 
-    move_uploaded_file(
+    $success = move_uploaded_file(
         $_FILES['image']['tmp_name'],
         $folder.$image
     );
+
+    if(!$success){
+        echo json_encode([
+            "success"=>false,
+            "message"=>"Failed to upload image"
+        ]);
+        exit;
+    }
 }
 
 $stmt=$conn->prepare("
@@ -271,9 +279,20 @@ $image
 
 $success=$stmt->execute();
 
-echo json_encode([
-"success"=>$success
-]);
+if($success){
+    $product_id = $conn->insert_id;
+    echo json_encode([
+        "success"=>true,
+        "message"=>"Product added",
+        "product_id"=>$product_id,
+        "image"=>$image
+    ]);
+} else {
+    echo json_encode([
+        "success"=>false,
+        "message"=>$conn->error
+    ]);
+}
 
 exit;
 }
@@ -293,24 +312,33 @@ $price=$_POST['price'];
 $stock_quantity=$_POST['stock_quantity'];
 $description=$_POST['description'];
 
-$imageSQL="";
-$params=[];
+$image=null;
 
 if(isset($_FILES['image']) && $_FILES['image']['error']==0){
 
     $folder="../uploads/products/";
 
+    if(!file_exists($folder)){
+        mkdir($folder,0777,true);
+    }
+
     $image=time().'_'.basename($_FILES['image']['name']);
 
-    move_uploaded_file(
+    $success = move_uploaded_file(
         $_FILES['image']['tmp_name'],
         $folder.$image
     );
 
-    $imageSQL=", image=?";
+    if(!$success){
+        echo json_encode([
+            "success"=>false,
+            "message"=>"Failed to upload image"
+        ]);
+        exit;
+    }
 }
 
-if($imageSQL!=""){
+if($image !== null){
 
 $stmt=$conn->prepare("
 UPDATE products
@@ -364,10 +392,12 @@ $id
 
 }
 
-$stmt->execute();
+$success=$stmt->execute();
 
 echo json_encode([
-"success"=>true
+"success"=>$success,
+"message"=>$success ? "Product updated" : $conn->error,
+"image"=>$image
 ]);
 
 exit;
@@ -507,102 +537,6 @@ $stmt=$conn->prepare(
 SET order_status=?
 WHERE id=?"
 );
-
-$stmt->bind_param(
-"si",
-$data['status'],
-$data['order_id']
-);
-
-$stmt->execute();
-
-echo json_encode([
-"success"=>true
-]);
-
-exit;
-}
-
-
-/* ================= CREATE CATEGORY ================= */
-
-if($method=="POST" && $action=="create_category"){
-
-$data=json_decode(
-file_get_contents("php://input"),
-true
-);
-
-$stmt=$conn->prepare("
-INSERT INTO categories
-(name,description)
-VALUES(?,?)
-");
-
-$stmt->bind_param(
-"ss",
-$data['name'],
-$data['description']
-);
-
-$stmt->execute();
-
-echo json_encode([
-"success"=>true
-]);
-
-exit;
-}
-
-
-/* ================= UPDATE CATEGORY ================= */
-
-if($method=="POST" && $action=="update_category"){
-
-$data=json_decode(
-file_get_contents("php://input"),
-true
-);
-
-$stmt=$conn->prepare("
-UPDATE categories
-SET
-name=?,
-description=?
-WHERE id=?
-");
-
-$stmt->bind_param(
-"ssi",
-$data['name'],
-$data['description'],
-$data['id']
-);
-
-$stmt->execute();
-
-echo json_encode([
-"success"=>true
-]);
-
-exit;
-}
-
-
-/* ================= UPDATE ORDER STATUS ================= */
-
-if($method=="POST" && $action=="update_order_status"){
-
-$data=json_decode(
-file_get_contents("php://input"),
-true
-);
-
-$stmt=$conn->prepare("
-UPDATE orders
-SET order_status=?
-WHERE id=?
-");
 
 $stmt->bind_param(
 "si",
